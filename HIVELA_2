@@ -1,0 +1,370 @@
+hive> create database if not exists EmployeeDB ;
+OK
+Time taken: 0.33 seconds
+hive> use EmployeeDB ;
+OK
+Time taken: 0.055 seconds
+hive> create table employee(Name string, SSN int, Salary int, Awards int, Tax_paid string, Eligible_for_payraise string)
+    > row format delimited
+    > fields terminated by "," ;
+OK
+Time taken: 0.925 seconds
+hive> show tables ;
+OK
+employee
+Time taken: 0.061 seconds, Fetched: 1 row(s)
+hive> desc employee ;
+OK
+name                	string              	                    
+ssn                 	int                 	                    
+salary              	int                 	                    
+awards              	int                 	                    
+tax_paid            	string              	                    
+eligible_for_payraise	string              	                    
+Time taken: 0.467 seconds, Fetched: 6 row(s)
+hive> insert into employee values("Ajay",61301,30000,2,"YES","YES");
+
+hive> insert into employee values("Atul",61302,48000,1,"NO","NO");
+
+hive> insert into employee values("Amith",61303,30000,4,"YES","YES");
+
+hive> insert into employee values("Bharat",61304,50000,0,"YES","NO");
+
+hive> insert into employee values("Bhuvan",61305,65000,5,"YES","YES");
+
+
+hive> select * from employee ;
+OK
+Ajay	61301	30000	2	YES	YES
+Atul	61302	48000	1	NO	NO
+Amith	61303	30000	4	YES	YES
+Bharat	61304	50000	0	YES	NO
+Bhuvan	61305	65000	5	YES	YES
+
+hive>  LOAD DATA local INPATH '/home/bigdata/Documents/input1.csv' into table employee ;
+Loading data to table employeedb.employee
+OK
+Time taken: 0.329 seconds
+hive> select * from employee ;
+OK
+Ajay	61301	30000	2	YES	YES
+Atul	61302	48000	1	NO	NO
+Amith	61303	30000	4	YES	YES
+Bharat	61304	50000	0	YES	NO
+Bhuvan	61305	65000	5	YES	YES
+Chandan	61306	70000	4	NO	NO
+Dhanush	61307	30000	3	YES	YES
+Gagan	61308	45000	4	YES	NO
+Harshita	61309	30000	6	YES	YES
+Harini	61310	48000	5	NO	NO
+Kavya	61311	50000	2	YES	YES
+Lalita	61312	30000	1	YES	YES
+Manu	61313	25000	0	NO	NO
+Naveen	61314	32000	1	YES	YES
+Pavan	61315	30000	0	NO	NO
+Pavitra	61316	34800	1	NO	YES
+Ranjana	61317	30000	0	NO	NO
+Shantala	61318	40000	1	YES	YES
+Shankar	61319	80000	8	YES	YES
+Tanuja	61320	30000	3	NO	YES
+Time taken: 0.197 seconds, Fetched: 20 row(s)
+hive> alter table employee rename to Emp ;
+OK
+Time taken: 0.261 seconds
+hive> show tables ;
+OK
+emp
+Time taken: 0.032 seconds, Fetched: 1 row(s)
+hive> alter table emp change eligible_for_payraise Eligibility string ;
+OK
+Time taken: 0.252 seconds
+hive> desc emp ;
+OK
+name                	string              	                    
+ssn                 	int                 	                    
+salary              	int                 	                    
+awards              	int                 	                    
+tax_paid            	string              	                    
+eligibility         	string              	                    
+Time taken: 0.069 seconds, Fetched: 6 row(s)
+hive> select count(*),tax_paid,eligibility from emp
+    > where tax_paid="YES" and eligibility="YES" ;
+FAILED: SemanticException [Error 10025]: Line 1:16 Expression not in GROUP BY key 'tax_paid'
+hive> create view pay_tax as
+    > select * from emp
+    > where tax_paid ="YES" and eligibility="YES" ;
+OK
+Time taken: 0.348 seconds
+hive> select * from pay_tax ;
+OK
+Ajay	61301	30000	2	YES	YES
+Amith	61303	30000	4	YES	YES
+Bhuvan	61305	65000	5	YES	YES
+Dhanush	61307	30000	3	YES	YES
+Harshita	61309	30000	6	YES	YES
+Kavya	61311	50000	2	YES	YES
+Lalita	61312	30000	1	YES	YES
+Naveen	61314	32000	1	YES	YES
+Shantala	61318	40000	1	YES	YES
+Shankar	61319	80000	8	YES	YES
+Time taken: 0.258 seconds, Fetched: 10 row(s)
+hive> select count(*) from pay_tax where eligibility="YES" ;
+
+10
+
+hive> select * from emp where tax_paid ="YES" and eligibility ="YES"
+    > order by name ;
+
+OK
+Ajay	61301	30000	2	YES	YES
+Amith	61303	30000	4	YES	YES
+Bhuvan	61305	65000	5	YES	YES
+Dhanush	61307	30000	3	YES	YES
+Harshita	61309	30000	6	YES	YES
+Kavya	61311	50000	2	YES	YES
+Lalita	61312	30000	1	YES	YES
+Naveen	61314	32000	1	YES	YES
+Shankar	61319	80000	8	YES	YES
+Shantala	61318	40000	1	YES	YES
+Time taken: 2.03 seconds, Fetched: 10 row(s)
+hive> select * from emp where tax_paid ="YES" and eligibility ="NO"
+    > order by name ;
+
+Bharat	61304	50000	0	YES	NO
+Gagan	61308	45000	4	YES	NO
+Time taken: 1.616 seconds, Fetched: 2 row(s)
+hive> select count(*) from emp where tax_paid ="YES" and eligibility ="YES" ;
+
+hive> create view sal_ssn_view as
+    > select ssn,salary from emp;
+OK
+Time taken: 0.251 seconds
+hive> select * from sal_ssn_view ;
+OK
+61301	30000
+61302	48000
+61303	30000
+61304	50000
+61305	65000
+61306	70000
+61307	30000
+61308	45000
+61309	30000
+61310	48000
+61311	50000
+61312	30000
+61313	25000
+61314	32000
+61315	30000
+61316	34800
+61317	30000
+61318	40000
+61319	80000
+61320	30000
+hive> select name,eligibility from emp ;
+OK
+Ajay	YES
+Atul	NO
+Amith	YES
+Bharat	NO
+Bhuvan	YES
+Chandan	NO
+Dhanush	YES
+Gagan	NO
+Harshita	YES
+Harini	NO
+Kavya	YES
+Lalita	YES
+Manu	NO
+Naveen	YES
+Pavan	NO
+Pavitra	YES
+Ranjana	NO
+Shantala	YES
+Shankar	YES
+Tanuja	YES
+Time taken: 0.141 seconds, Fetched: 20 row(s)
+hive> select name,eligibility from emp group by ssn ;
+FAILED: SemanticException [Error 10025]: Line 1:7 Expression not in GROUP BY key 'name'
+hive> select name,eligibility,ssn from emp group by ssn ;
+FAILED: SemanticException [Error 10025]: Line 1:7 Expression not in GROUP BY key 'name'
+hive> 
+ive> select name, ssn from emp where salary>40000 and salary<48000 ;
+OK
+Gagan	61308
+Time taken: 0.152 seconds, Fetched: 1 row(s)
+hive> create table orders(Orderid int, Custssn int, Amount int)
+    > row format delimited
+    > fields terminated by "," ;
+OK
+Time taken: 0.087 seconds
+hive> show tables ;
+OK
+emp
+orders
+pay_tax
+sal_ssn_view
+
+hive> insert into orders values(63,61302,50000) ;
+
+hive> insert into orders values(64,61315,45000) ;
+
+hive> insert into orders values(65,61305,29000) ;
+
+Time taken: 2.083 seconds
+hive> insert into orders values(66,61310,38900) ;
+
+Time taken: 1.929 seconds
+hive> insert into orders values(67,61320,37800) ;
+
+OK
+Time taken: 2.175 seconds
+hive> 
+hive> show tables ;
+OK
+emp
+orders
+pay_tax
+sal_ssn_view
+Time taken: 0.315 seconds, Fetched: 4 row(s)
+hive> desc emp ;
+OK
+name                	string              	                    
+ssn                 	int                 	                    
+salary              	int                 	                    
+awards              	int                 	                    
+tax_paid            	string              	                    
+eligibility         	string              	                    
+Time taken: 0.071 seconds, Fetched: 6 row(s)
+hive> desc orders ;
+OK
+orderid             	int                 	                    
+custssn             	int                 	                    
+amount              	int                 	                    
+Time taken: 0.095 seconds, Fetched: 3 row(s)
+hive> select e.name,e.ssn,e.salary from emp e
+    > left outer join orders o
+    > on (o.custssn = e.ssn) ;
+
+Ajay	61301	30000
+Atul	61302	48000
+Amith	61303	30000
+Bharat	61304	50000
+Bhuvan	61305	65000
+Chandan	61306	70000
+Dhanush	61307	30000
+Gagan	61308	45000
+Harshita	61309	30000
+Harini	61310	48000
+Kavya	61311	50000
+Lalita	61312	30000
+Manu	61313	25000
+Naveen	61314	32000
+Pavan	61315	30000
+Pavitra	61316	34800
+Ranjana	61317	30000
+Shantala	61318	40000
+Shankar	61319	80000
+Tanuja	61320	30000
+
+hive> select * from emp e
+    > left outer join orders o
+    > on(o.custssn = e.ssn) ;
+OK
+Ajay	61301	30000	2	YES	YES	NULL	NULL	NULL
+Atul	61302	48000	1	NO	NO	63	61302	50000
+Amith	61303	30000	4	YES	YES	NULL	NULL	NULL
+Bharat	61304	50000	0	YES	NO	NULL	NULL	NULL
+Bhuvan	61305	65000	5	YES	YES	65	61305	29000
+Chandan	61306	70000	4	NO	NO	NULL	NULL	NULL
+Dhanush	61307	30000	3	YES	YES	NULL	NULL	NULL
+Gagan	61308	45000	4	YES	NO	NULL	NULL	NULL
+Harshita	61309	30000	6	YES	YES	NULL	NULL	NULL
+Harini	61310	48000	5	NO	NO	66	61310	38900
+Kavya	61311	50000	2	YES	YES	NULL	NULL	NULL
+Lalita	61312	30000	1	YES	YES	NULL	NULL	NULL
+Manu	61313	25000	0	NO	NO	NULL	NULL	NULL
+Naveen	61314	32000	1	YES	YES	NULL	NULL	NULL
+Pavan	61315	30000	0	NO	NO	64	61315	45000
+Pavitra	61316	34800	1	NO	YES	NULL	NULL	NULL
+Ranjana	61317	30000	0	NO	NO	NULL	NULL	NULL
+Shantala	61318	40000	1	YES	YES	NULL	NULL	NULL
+Shankar	61319	80000	8	YES	YES	NULL	NULL	NULL
+Tanuja	61320	30000	3	NO	YES	67	61320	37800
+Time taken: 18.616 seconds, Fetched: 20 row(s)
+
+hive> select * from emp e
+    > right outer join orders o
+    > on(o.custssn = e.ssn) ;
+Atul	61302	48000	1	NO	NO	63	61302	50000
+Pavan	61315	30000	0	NO	NO	64	61315	45000
+Bhuvan	61305	65000	5	YES	YES	65	61305	29000
+Harini	61310	48000	5	NO	NO	66	61310	38900
+Tanuja	61320	30000	3	NO	YES	67	61320	37800
+
+hive> select * from emp e
+    > full outer join orders o
+    > on(o.custssn = e.ssn) ;
+
+Ajay	61301	30000	2	YES	YES	NULL	NULL	NULL
+Atul	61302	48000	1	NO	NO	63	61302	50000
+Amith	61303	30000	4	YES	YES	NULL	NULL	NULL
+Bharat	61304	50000	0	YES	NO	NULL	NULL	NULL
+Bhuvan	61305	65000	5	YES	YES	65	61305	29000
+Chandan	61306	70000	4	NO	NO	NULL	NULL	NULL
+Dhanush	61307	30000	3	YES	YES	NULL	NULL	NULL
+Gagan	61308	45000	4	YES	NO	NULL	NULL	NULL
+Harshita	61309	30000	6	YES	YES	NULL	NULL	NULL
+Harini	61310	48000	5	NO	NO	66	61310	38900
+Kavya	61311	50000	2	YES	YES	NULL	NULL	NULL
+Lalita	61312	30000	1	YES	YES	NULL	NULL	NULL
+Manu	61313	25000	0	NO	NO	NULL	NULL	NULL
+Naveen	61314	32000	1	YES	YES	NULL	NULL	NULL
+Pavan	61315	30000	0	NO	NO	64	61315	45000
+Pavitra	61316	34800	1	NO	YES	NULL	NULL	NULL
+Ranjana	61317	30000	0	NO	NO	NULL	NULL	NULL
+Shantala	61318	40000	1	YES	YES	NULL	NULL	NULL
+Shankar	61319	80000	8	YES	YES	NULL	NULL	NULL
+Tanuja	61320	30000	3	NO	YES	67	61320	37800
+Time taken: 1.693 seconds, Fetched: 20 row(s)
+hive> hive> select ssn,eligibility from emp group by ssn,eligibility ;
+
+Total MapReduce CPU Time Spent: 0 msec
+OK
+61301	YES
+61302	NO
+61303	YES
+61304	NO
+61305	YES
+61306	NO
+61307	YES
+61308	NO
+61309	YES
+61310	NO
+61311	YES
+61312	YES
+61313	NO
+61314	YES
+61315	NO
+61316	YES
+61317	NO
+61318	YES
+61319	YES
+61320	YES
+Time taken: 1.929 seconds, Fetched: 20 row(s)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
