@@ -1,0 +1,70 @@
+1.Demonstrate the usage of $match, $group, aggregate pipelines.
+
+>db.movies.aggregate([{ $match: {Name: "Ranna"}}]).pretty()
+{
+        "_id" : ObjectId("60ed963a35f1e73bb45eff46"),
+        "Name" : "Ranna",
+        "IMDB Rate" : 9.5,
+        "Genre" : "Action",
+        "No_of_positive_feedback" : 100,
+        "Referable" : true
+}
+
+> db.movies.aggregate([{ $group: {_id: "$Referable", Totalfeedback:{$sum: "$No_of_positive_feedback"}}}]).pretty()
+{ "_id" : true, "Totalfeedback" : 1127 }
+{ "_id" : false, "Totalfeedback" : 541 }
+
+$match and $group together
+
+> db.movies.aggregate([{$match : {Genre: "Romantic"}},{$group: {_id: "$Name", Feedback:{$sum: "$No_of_positive_feedback"}}}]);
+{ "_id" : "Koi Mil Gaya", "Feedback" : 95 }
+{ "_id" : "Kiss", "Feedback" : 98 }
+{ "_id" : "Arya2", "Feedback" : 93 }
+
+
+2.Demonstrate the Map-Reduce aggregate function on this dataset.
+
+>var mapper = function(){emit(this.Name,this["No_of_positive_feedback"])}
+> var reduce = function(Name,No_of_positive_feedback){return Array.sum(No_of_positive_feedback)}
+> db.movies.mapReduce(mapper,reduce,{out:"Feedback"})
+{ "result" : "Feedback", "ok" : 1 }
+> db.Feedback.find().pretty()
+{ "_id" : "Kotigobba", "value" : 90 }
+{ "_id" : "Chernobyl", "value" : 95 }
+{ "_id" : "Ranna", "value" : 100 }
+{ "_id" : "Stranger Things", "value" : 95 }
+{ "_id" : "Panchrangi", "value" : 54 }
+{ "_id" : "Shh", "value" : 67 }
+{ "_id" : "M S Dhoni", "value" : 90 }
+{ "_id" : "Bahubali2", "value" : 92 }
+{ "_id" : "Dil Bechara", "value" : 90 }
+{ "_id" : "Robot", "value" : 87 }
+{ "_id" : "Simba", "value" : 34 }
+{ "_id" : "Varadanayaka", "value" : 88 }
+{ "_id" : "Arya2", "value" : 93 }
+{ "_id" : "Goalmal", "value" : 45 }
+{ "_id" : "Koi Mil Gaya", "value" : 95 }
+{ "_id" : "Kedarnath", "value" : 100 }
+{ "_id" : "Eega", "value" : 96 }
+{ "_id" : "Kiss", "value" : 98 }
+{ "_id" : "Atagara", "value" : 91 }
+{ "_id" : "Gunjan Saxena", "value" : 68 }
+
+
+3.Count the number of Movies which belong to the thriller category and find out the total number of positive reviews in that category.
+ >db.movies.aggregate([{ $group : {_id : { Genre : "Thriller"}, "Feedback" : {$sum : "$No_of_positive_feedback"}}}])
+{ "_id" : { "Genre" : "Thriller" }, "Feedback" : 1668 }
+
+
+4.Group all the records by genre and find out the total number of positive feedbacks by genre.
+> db.movies.aggregate([{$group: {_id: "$Genre","Positive Feedback" : {$sum: "$No_of_positive_feedback"}}}])
+{ "_id" : "Action", "Positive Feedback" : 282 }
+{ "_id" : "Romantic", "Positive Feedback" : 286 }
+{ "_id" : "Series", "Positive Feedback" : 95 }
+{ "_id" : "Drama", "Positive Feedback" : 154 }
+{ "_id" : "Comedy", "Positive Feedback" : 45 }
+{ "_id" : "Science", "Positive Feedback" : 95 }
+{ "_id" : "Life", "Positive Feedback" : 158 }
+{ "_id" : "Genaral", "Positive Feedback" : 34 }
+{ "_id" : "Thriller", "Positive Feedback" : 429 }
+{ "_id" : "Romantc", "Positive Feedback" : 90 }
